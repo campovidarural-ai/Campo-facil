@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CampoFácil - Cuaderno Ganadero Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SDK de Supabase para la nube -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .tab-active { color: #15803d; border-top: 3px solid #15803d; font-weight: 700; }
+    .badge-retention { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-900 pb-28 select-none">
+
+  <!-- Header -->
+  <header class="bg-emerald-800 text-white px-4 py-3 sticky top-0 z-40 shadow flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <i data-lucide="shield-check" class="w-7 h-7 text-emerald-300"></i>
+      <div>
+        <h1 class="text-lg font-black leading-tight tracking-wide">CampoFácil</h1>
+        <p class="text-xs text-emerald-200" id="sync-status">Conectando a la nube...</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-1">
+      <button onclick="sincronizarDatos()" title="Sincronizar ahora" class="p-2 bg-emerald-700 active:bg-emerald-900 rounded-lg text-white mr-1">
+        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+      </button>
+      <button onclick="openModal('exportModal')" title="Exportar datos" class="p-2 bg-emerald-700 active:bg-emerald-900 rounded-lg text-white">
+        <i data-lucide="download" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Buscador rápido por Crotal -->
+  <section class="p-3 bg-white border-b border-stone-200 shadow-sm">
+    <div class="relative">
+      <i data-lucide="search" class="absolute left-3 top-3 text-stone-400 w-5 h-5"></i>
+      <input type="text" id="crotalSearch" oninput="buscarHistorialCrotal(this.value)" placeholder="Buscar crotal (ej. ES01...)" class="w-full pl-10 pr-4 py-2 bg-stone-100 rounded-xl border border-stone-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600 uppercase">
+    </div>
+    <div id="crotalSearchResult" class="hidden mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs"></div>
+  </section>
+
+  <!-- Contenedores de Secciones / Pestañas -->
+  <main class="max-w-md mx-auto p-3">
+    <!-- 1. CENSO -->
+    <section id="view-censo" class="space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="font-bold text-stone-700 text-base">Censo Activo (<span id="count-censo">0</span>)</h2>
+        <button onclick="openModal('modalAnimal')" class="bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Nuevo Animal</span>
+        </button>
+      </div>
+      <div id="lista-animales" class="space-y-2"></div>
+    </section>
+
+    <!-- 2. TRATAMIENTOS -->
+    <section id="view-tratamientos" class="space-y-3 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="font-bold text-stone-700 text-base">Tratamientos Veterinarios</h2>
+          <p class="text-xs text-stone-500">Alerta de plazos de espera para leche/carne</p>
+        </div>
+        <button onclick="openModal('modalTratamiento')" class="bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Añadir</span>
+        </button>
+      </div>
+      <div id="lista-tratamientos" class="space-y-2"></div>
+    </section>
+
+    <!-- 3. PARTOS -->
+    <section id="view-partos" class="space-y-3 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="font-bold text-stone-700 text-base">Registro de Partos</h2>
+          <p class="text-xs text-stone-500">Nacimientos y estado de las crías</p>
+        </div>
+        <button onclick="openModal('modalParto')" class="bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Registrar Parto</span>
+        </button>
+      </div>
+      <div id="lista-partos" class="space-y-2"></div>
+    </section>
+
+    <!-- 4. SALIDAS -->
