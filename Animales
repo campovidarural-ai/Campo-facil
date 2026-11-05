@@ -90,3 +90,614 @@
     </section>
 
     <!-- 4. SALIDAS -->
+    <section id="view-salidas" class="space-y-3 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="font-bold text-stone-700 text-base">Bajas y Traslados</h2>
+          <p class="text-xs text-stone-500">Ventas, matadero o bajas</p>
+        </div>
+        <button onclick="openModal('modalSalida')" class="bg-stone-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Registrar Salida</span>
+        </button>
+      </div>
+      <div id="lista-salidas" class="space-y-2"></div>
+    </section>
+
+    <!-- 5. AVISOS -->
+    <section id="view-avisos" class="space-y-3 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="font-bold text-stone-700 text-base">Avisos de Finca</h2>
+          <p class="text-xs text-stone-500">Cercas rotas, agua o animales tocados</p>
+        </div>
+        <button onclick="openModal('modalAviso')" class="bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Nuevo Aviso</span>
+        </button>
+      </div>
+      <div id="lista-avisos" class="space-y-2"></div>
+    </section>
+  </main>
+
+  <!-- Barra de Navegación Inferior -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 px-2 py-1 flex justify-around shadow-lg z-30">
+    <button onclick="switchTab('censo')" id="nav-censo" class="flex flex-col items-center py-1 text-stone-500 tab-active w-1/5">
+      <i data-lucide="layers" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Censo</span>
+    </button>
+    <button onclick="switchTab('tratamientos')" id="nav-tratamientos" class="flex flex-col items-center py-1 text-stone-500 w-1/5">
+      <i data-lucide="cross" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Tratamientos</span>
+    </button>
+    <button onclick="switchTab('partos')" id="nav-partos" class="flex flex-col items-center py-1 text-stone-500 w-1/5">
+      <i data-lucide="baby" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Partos</span>
+    </button>
+    <button onclick="switchTab('salidas')" id="nav-salidas" class="flex flex-col items-center py-1 text-stone-500 w-1/5">
+      <i data-lucide="truck" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Salidas</span>
+    </button>
+    <button onclick="switchTab('avisos')" id="nav-avisos" class="flex flex-col items-center py-1 text-stone-500 w-1/5">
+      <i data-lucide="alert-triangle" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Avisos</span>
+    </button>
+  </nav>
+
+  <!-- MODAL: NUEVO ANIMAL -->
+  <div id="modalAnimal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Alta de Animal</h3>
+        <button onclick="closeModal('modalAnimal')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formAnimal" onsubmit="guardarAnimal(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Crotal / Identificador *</label>
+          <input type="text" id="a_crotal" required placeholder="Ej: ES091234567890" class="w-full p-2.5 bg-stone-100 rounded-lg border border-stone-300 uppercase text-sm font-bold">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Especie</label>
+            <select id="a_especie" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+              <option value="Vacuno">Vacuno</option>
+              <option value="Ovino">Ovino</option>
+              <option value="Caprino">Caprino</option>
+              <option value="Porcino">Porcino</option>
+              <option value="Equino">Equino</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Sexo</label>
+            <select id="a_sexo" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+              <option value="Hembra">Hembra</option>
+              <option value="Macho">Macho</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Raza / Tipo</label>
+          <input type="text" id="a_raza" placeholder="Ej: Limusina, Frisona..." class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Fecha Nacimiento</label>
+            <input type="date" id="a_nacimiento" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Lote / Cercado</label>
+            <input type="text" id="a_lote" placeholder="Ej: Pasto Alto" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 bg-emerald-700 text-white font-bold rounded-xl text-sm shadow">Guardar Animal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TRATAMIENTO -->
+  <div id="modalTratamiento" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Tratamiento Veterinario</h3>
+        <button onclick="closeModal('modalTratamiento')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formTratamiento" onsubmit="guardarTratamiento(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Crotal del Animal *</label>
+          <input type="text" id="t_crotal" required placeholder="Crotal del animal" class="w-full p-2.5 bg-stone-100 rounded-lg border border-stone-300 uppercase font-bold text-sm">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Medicamento / Producto *</label>
+          <input type="text" id="t_medicamento" required placeholder="Ej: Antibiótico X" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Fecha Aplicación</label>
+            <input type="date" id="t_fecha" required class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Días de Supresión</label>
+            <input type="number" id="t_dias" min="0" value="0" required class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300 font-bold">
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Dosis</label>
+          <input type="text" id="t_dosis" placeholder="Ej: 20ml intramuscular" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Motivo</label>
+          <input type="text" id="t_motivo" placeholder="Ej: Mastitis, cojera..." class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <button type="submit" class="w-full py-3 bg-amber-600 text-white font-bold rounded-xl text-sm shadow">Registrar Tratamiento</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PARTO -->
+  <div id="modalParto" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Registrar Parto</h3>
+        <button onclick="closeModal('modalParto')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formParto" onsubmit="guardarParto(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Crotal de la Madre *</label>
+          <input type="text" id="p_madre" required placeholder="Crotal de la madre" class="w-full p-2.5 bg-stone-100 rounded-lg border border-stone-300 uppercase font-bold text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Fecha del Parto</label>
+            <input type="date" id="p_fecha" required class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Tipo de Parto</label>
+            <select id="p_tipo" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+              <option value="Natural">Natural fácil</option>
+              <option value="Asistido">Asistido</option>
+              <option value="Cesárea">Cesárea</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Nº Crías Vivas</label>
+            <input type="number" id="p_vivas" min="0" value="1" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300 font-bold">
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Crotal Cría (opcional)</label>
+            <input type="text" id="p_cria_crotal" placeholder="Crotal cría" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300 uppercase">
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Observaciones</label>
+          <textarea id="p_obs" rows="2" placeholder="Observaciones..." class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3 bg-emerald-700 text-white font-bold rounded-xl text-sm shadow">Guardar Parto</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SALIDA -->
+  <div id="modalSalida" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Registrar Salida / Baja</h3>
+        <button onclick="closeModal('modalSalida')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formSalida" onsubmit="guardarSalida(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Crotal del Animal *</label>
+          <input type="text" id="s_crotal" required placeholder="Crotal del animal" class="w-full p-2.5 bg-stone-100 rounded-lg border border-stone-300 uppercase font-bold text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Tipo de Salida</label>
+            <select id="s_tipo" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+              <option value="Venta / Matadero">Venta / Matadero</option>
+              <option value="Venta / Vida">Venta / Vida</option>
+              <option value="Muerte en Finca">Muerte en Finca</option>
+              <option value="Traslado">Traslado</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Fecha</label>
+            <input type="date" id="s_fecha" required class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Nº Guía</label>
+          <input type="text" id="s_guia" placeholder="Nº guía sanitaria" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Destino</label>
+          <input type="text" id="s_destino" placeholder="Destino" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <button type="submit" class="w-full py-3 bg-stone-800 text-white font-bold rounded-xl text-sm shadow">Confirmar Salida</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AVISO -->
+  <div id="modalAviso" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Aviso / Tarea Rápida</h3>
+        <button onclick="closeModal('modalAviso')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formAviso" onsubmit="guardarAviso(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Tipo de Aviso</label>
+          <select id="av_tipo" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+            <option value="Cercado / Pastor">Cercado o Pastor Roto</option>
+            <option value="Agua / Bebedero">Agua / Bebedero Sin Caudal</option>
+            <option value="Animal Sospechoso">Animal Aislado o Enfermo</option>
+            <option value="Pienso / Forraje">Falta Pienso / Forraje</option>
+            <option value="Otro">Otro Asunto</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Ubicación</label>
+          <input type="text" id="av_lugar" placeholder="Ej: Parcela Los Olivos" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Detalle del aviso *</label>
+          <textarea id="av_texto" required rows="3" placeholder="Describe el problema..." class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3 bg-rose-700 text-white font-bold rounded-xl text-sm shadow">Añadir Aviso</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EXPORTAR -->
+  <div id="modalExportModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Descargar y Copias</h3>
+        <button onclick="closeModal('exportModal')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <p class="text-xs text-stone-600">Exporta los datos actuales a Excel o haz una copia de seguridad.</p>
+      <div class="space-y-2 pt-2">
+        <button onclick="exportarCSV()" class="w-full py-2.5 bg-emerald-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center space-x-2">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          <span>Descargar en Excel (CSV)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script JS Lógica con Supabase -->
+  <script>
+    // ==========================================
+    // CONFIGURACIÓN DE SUPABASE (CONFIGURADO)
+    // ==========================================
+    const SUPABASE_URL = "https://logqmckqipqpvh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_WX_ZQL1pnqPR05RwCch-Cg_gsU9fmUZ";
+    
+    let supabaseClient = null;
+    try {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch(e) {
+      console.warn("Supabase no configurado correctamente.");
+    }
+
+    let DB = { animales: [], tratamientos: [], partos: [], salidas: [], avisos: [] };
+
+    async function sincronizarDatos() {
+      const statusEl = document.getElementById('sync-status');
+      if (!supabaseClient) {
+        statusEl.innerText = "Modo local (Sin nube)";
+        cargarDatosLocal();
+        return;
+      }
+
+      statusEl.innerText = "Sincronizando...";
+      try {
+        const [an, tr, pa, sa, av] = await Promise.all([
+          supabaseClient.from('animales').select('*'),
+          supabaseClient.from('tratamientos').select('*'),
+          supabaseClient.from('partos').select('*'),
+          supabaseClient.from('salidas').select('*'),
+          supabaseClient.from('avisos').select('*')
+        ]);
+
+        DB.animales = an.data || [];
+        DB.tratamientos = tr.data || [];
+        DB.partos = pa.data || [];
+        DB.salidas = sa.data || [];
+        DB.avisos = av.data || [];
+
+        statusEl.innerText = "Sincronizado en la nube ☁️";
+        renderizarTodo();
+      } catch (err) {
+        statusEl.innerText = "Sin conexión (Modo offline)";
+        cargarDatosLocal();
+      }
+    }
+
+    function cargarDatosLocal() {
+      const stored = localStorage.getItem("campofacil_db_v1");
+      if (stored) {
+        try { DB = JSON.parse(stored); } catch(e){}
+      }
+      renderizarTodo();
+    }
+
+    function guardarEnStorageLocal() {
+      localStorage.setItem("campofacil_db_v1", JSON.stringify(DB));
+    }
+
+    async function guardarAnimal(e) {
+      e.preventDefault();
+      const nuevo = {
+        crotal: document.getElementById('a_crotal').value.trim().toUpperCase(),
+        especie: document.getElementById('a_especie').value,
+        sexo: document.getElementById('a_sexo').value,
+        raza: document.getElementById('a_raza').value,
+        fechanac: document.getElementById('a_nacimiento').value || null,
+        lote: document.getElementById('a_lote').value
+      };
+
+      DB.animales.unshift(nuevo);
+      guardarEnStorageLocal();
+      renderizarTodo();
+      closeModal('modalAnimal');
+      document.getElementById('formAnimal').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('animales').insert([nuevo]);
+        sincronizarDatos();
+      }
+    }
+
+    async function guardarTratamiento(e) {
+      e.preventDefault();
+      const nuevo = {
+        crotal: document.getElementById('t_crotal').value.trim().toUpperCase(),
+        medicamento: document.getElementById('t_medicamento').value,
+        fecha: document.getElementById('t_fecha').value,
+        dias: parseInt(document.getElementById('t_dias').value) || 0,
+        dosis: document.getElementById('t_dosis').value,
+        motivo: document.getElementById('t_motivo').value
+      };
+
+      DB.tratamientos.unshift(nuevo);
+      guardarEnStorageLocal();
+      renderizarTodo();
+      closeModal('modalTratamiento');
+      document.getElementById('formTratamiento').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('tratamientos').insert([nuevo]);
+        sincronizarDatos();
+      }
+    }
+
+    async function guardarParto(e) {
+      e.preventDefault();
+      const nuevo = {
+        madre: document.getElementById('p_madre').value.trim().toUpperCase(),
+        fecha: document.getElementById('p_fecha').value,
+        tipo: document.getElementById('p_tipo').value,
+        vivas: parseInt(document.getElementById('p_vivas').value) || 1,
+        crotalcria: document.getElementById('p_cria_crotal').value.trim().toUpperCase(),
+        obs: document.getElementById('p_obs').value
+      };
+
+      DB.partos.unshift(nuevo);
+      guardarEnStorageLocal();
+      renderizarTodo();
+      closeModal('modalParto');
+      document.getElementById('formParto').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('partos').insert([nuevo]);
+        sincronizarDatos();
+      }
+    }
+
+    async function guardarSalida(e) {
+      e.preventDefault();
+      const crotal = document.getElementById('s_crotal').value.trim().toUpperCase();
+      const nuevo = {
+        crotal,
+        tipo: document.getElementById('s_tipo').value,
+        fecha: document.getElementById('s_fecha').value,
+        guia: document.getElementById('s_guia').value,
+        destino: document.getElementById('s_destino').value
+      };
+
+      DB.salidas.unshift(nuevo);
+      DB.animales = DB.animales.filter(a => a.crotal !== crotal);
+      guardarEnStorageLocal();
+      renderizarTodo();
+      closeModal('modalSalida');
+      document.getElementById('formSalida').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('salidas').insert([nuevo]);
+        await supabaseClient.from('animales').delete().eq('crotal', crotal);
+        sincronizarDatos();
+      }
+    }
+
+    async function guardarAviso(e) {
+      e.preventDefault();
+      const nuevo = {
+        id: Date.now(),
+        tipo: document.getElementById('av_tipo').value,
+        lugar: document.getElementById('av_lugar').value,
+        texto: document.getElementById('av_texto').value,
+        resuelto: false
+      };
+
+      DB.avisos.unshift(nuevo);
+      guardarEnStorageLocal();
+      renderizarTodo();
+      closeModal('modalAviso');
+      document.getElementById('formAviso').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('avisos').insert([nuevo]);
+        sincronizarDatos();
+      }
+    }
+
+    async function resolverAviso(id) {
+      const av = DB.avisos.find(a => a.id === id);
+      if (av) {
+        av.resuelto = !av.resuelto;
+        guardarEnStorageLocal();
+        renderizarTodo();
+
+        if (supabaseClient) {
+          await supabaseClient.from('avisos').update({ resuelto: av.resuelto }).eq('id', id);
+          sincronizarDatos();
+        }
+      }
+    }
+
+    function switchTab(tabId) {
+      ['censo', 'tratamientos', 'partos', 'salidas', 'avisos'].forEach(tab => {
+        document.getElementById(`view-${tab}`).classList.add('hidden');
+        document.getElementById(`nav-${tab}`).classList.remove('tab-active');
+      });
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabId}`).classList.add('tab-active');
+      lucide.createIcons();
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id.startsWith('modal') ? id : `modal${id.charAt(0).toUpperCase() + id.slice(1)}`);
+      if (modal) {
+        modal.classList.remove('hidden');
+        const hoy = new Date().toISOString().split('T')[0];
+        modal.querySelectorAll('input[type="date"]').forEach(i => { if(!i.value) i.value = hoy; });
+      }
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id.startsWith('modal') ? id : `modal${id.charAt(0).toUpperCase() + id.slice(1)}`);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderizarTodo() {
+      document.getElementById('count-censo').innerText = DB.animales.length;
+
+      // Censo
+      const listaCenso = document.getElementById('lista-animales');
+      listaCenso.innerHTML = DB.animales.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay animales registrados.</p>` :
+        DB.animales.map(a => `
+          <div class="bg-white p-3 rounded-xl border border-stone-200 shadow-sm flex justify-between items-center">
+            <div>
+              <div class="font-black text-sm text-stone-800">${a.crotal}</div>
+              <div class="text-[11px] text-stone-500">${a.especie} · ${a.sexo} ${a.raza ? '· ' + a.raza : ''}</div>
+              <div class="text-[10px] text-emerald-700 font-semibold mt-0.5">📍 ${a.lote || 'Sin cercado'}</div>
+            </div>
+            <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-400 p-2"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+          </div>
+        `).join('');
+
+      // Tratamientos
+      const listaTrat = document.getElementById('lista-tratamientos');
+      const hoy = new Date();
+      listaTrat.innerHTML = DB.tratamientos.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay tratamientos.</p>` :
+        DB.tratamientos.map(t => {
+          const fFin = new Date(t.fecha);
+          fFin.setDate(fFin.getDate() + (t.dias || 0));
+          const enSupresion = fFin >= hoy && t.dias > 0;
+          return `
+            <div class="bg-white p-3 rounded-xl border ${enSupresion ? 'border-amber-400 bg-amber-50/40' : 'border-stone-200'} shadow-sm">
+              <div class="flex justify-between items-start">
+                <span class="font-black text-xs text-stone-800">${t.crotal}</span>
+                ${enSupresion ? `<span class="bg-amber-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full badge-retention">SUPRESIÓN HASTA ${fFin.toLocaleDateString()}</span>` : `<span class="bg-stone-200 text-stone-700 text-[10px] px-2 py-0.5 rounded">Apto</span>`}
+              </div>
+              <div class="font-bold text-xs text-stone-900 mt-1">${t.medicamento}</div>
+              <div class="text-[11px] text-stone-500 mt-0.5">${t.motivo || ''} · ${t.dosis || ''}</div>
+            </div>`;
+        }).join('');
+
+      // Partos
+      const listaPartos = document.getElementById('lista-partos');
+      listaPartos.innerHTML = DB.partos.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay partos.</p>` :
+        DB.partos.map(p => `
+          <div class="bg-white p-3 rounded-xl border border-stone-200 shadow-sm space-y-1">
+            <div class="flex justify-between items-center"><span class="font-black text-xs text-stone-800">Madre: ${p.madre}</span><span class="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">${p.fecha}</span></div>
+            <div class="text-xs text-stone-600 font-semibold">${p.vivas} cría(s) · Parto ${p.tipo}</div>
+            ${p.crotalcria ? `<div class="text-[11px] text-emerald-700 font-mono font-bold">Crotal cría: ${p.crotalcria}</div>` : ''}
+          </div>`).join('');
+
+      // Salidas
+      const listaSalidas = document.getElementById('lista-salidas');
+      listaSalidas.innerHTML = DB.salidas.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay salidas.</p>` :
+        DB.salidas.map(s => `
+          <div class="bg-white p-3 rounded-xl border border-stone-200 shadow-sm space-y-1">
+            <div class="flex justify-between items-center"><span class="font-black text-xs text-stone-800">${s.crotal}</span><span class="text-[10px] bg-stone-800 text-white px-2 py-0.5 rounded">${s.tipo}</span></div>
+            <div class="text-xs text-stone-600">Fecha: ${s.fecha} ${s.guia ? '· Guía: ' + s.guia : ''}</div>
+          </div>`).join('');
+
+      // Avisos
+      const listaAvisos = document.getElementById('lista-avisos');
+      listaAvisos.innerHTML = DB.avisos.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay avisos pendientes.</p>` :
+        DB.avisos.map(av => `
+          <div class="bg-white p-3 rounded-xl border ${av.resuelto ? 'border-stone-200 opacity-60' : 'border-rose-300 bg-rose-50/30'} shadow-sm flex items-start justify-between">
+            <div class="space-y-0.5">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded ${av.resuelto ? 'bg-stone-200 text-stone-700' : 'bg-rose-600 text-white'}">${av.tipo}</span>
+              <div class="text-xs font-bold text-stone-800 pt-1">${av.texto}</div>
+              <div class="text-[10px] text-stone-500">📍 ${av.lugar || 'Finca'}</div>
+            </div>
+            <button onclick="resolverAviso(${av.id})" class="p-2 text-stone-400"><i data-lucide="${av.resuelto ? 'check-circle-2' : 'circle'}" class="w-6 h-6 text-${av.resuelto ? 'emerald-600' : 'stone-400'}"></i></button>
+          </div>`).join('');
+
+      lucide.createIcons();
+    }
+
+    function copiarAlBuscador(crotal) {
+      document.getElementById('crotalSearch').value = crotal;
+      buscarHistorialCrotal(crotal);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function buscarHistorialCrotal(query) {
+      const res = document.getElementById('crotalSearchResult');
+      const q = query.trim().toUpperCase();
+      if (!q) { res.classList.add('hidden'); return; }
+      res.classList.remove('hidden');
+
+      const animal = DB.animales.find(a => a.crotal.includes(q));
+      const tratamientos = DB.tratamientos.filter(t => t.crotal.includes(q));
+      const partos = DB.partos.filter(p => p.madre.includes(q));
+
+      if (!animal && tratamientos.length === 0 && partos.length === 0) {
+        res.innerHTML = `<div class="text-stone-500">No se encontró ningún registro para "${q}".</div>`;
+        return;
+      }
+
+      let html = `<div class="font-bold text-emerald-900 text-xs mb-1">Resultados para: ${q}</div>`;
+      if (animal) html += `<div class="bg-white p-2 rounded-lg border border-emerald-300 mb-1"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Lote: ${animal.lote || 'N/A'}</div>`;
+      if (tratamientos.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-amber-300 mb-1"><b>Tratamientos:</b> ${tratamientos.map(t => `<div class="text-[10px]">• ${t.fecha}: ${t.medicamento}</div>`).join('')}</div>`;
+      if (partos.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-blue-200"><b>Partos:</b> ${partos.map(p => `<div class="text-[10px]">• ${p.fecha}: ${p.vivas} cría(s)</div>`).join('')}</div>`;
+      res.innerHTML = html;
+    }
+
+    function exportarCSV() {
+      let csv = "Tipo,Crotal,Fecha,Detalle\n";
+      DB.animales.forEach(a => csv += `Animal,${a.crotal},${a.fechanac || ''},${a.especie} ${a.sexo}\n`);
+      DB.tratamientos.forEach(t => csv += `Tratamiento,${t.crotal},${t.fecha},${t.medicamento}\n`);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `registro_ganadero.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      sincronizarDatos();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
