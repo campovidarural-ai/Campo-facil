@@ -47,14 +47,18 @@
 
   <!-- Contenedores de Secciones / Pestañas -->
   <main class="max-w-md mx-auto p-3">
-    <!-- 1. CENSO -->
+    <!-- 1. CENSO Y FINCAS -->
     <section id="view-censo" class="space-y-3">
       <div class="flex justify-between items-center">
-        <h2 class="font-bold text-stone-700 text-base">Censo Activo (<span id="count-censo">0</span>)</h2>
+        <h2 class="font-bold text-stone-700 text-base">Censo (<span id="count-censo">0</span>)</h2>
         <div class="flex space-x-1">
+          <button onclick="openModal('modalFinca')" class="bg-stone-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <span>+ Finca</span>
+          </button>
           <button onclick="openModal('modalPeso')" class="bg-amber-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
             <i data-lucide="scale" class="w-4 h-4"></i>
-            <span>Pesaje</span>
+            <span>Peso</span>
           </button>
           <button onclick="openModal('modalAnimal')" class="bg-emerald-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -62,6 +66,15 @@
           </button>
         </div>
       </div>
+
+      <!-- Filtro rápido por Finca/Cercado -->
+      <div class="bg-white p-2 rounded-xl border border-stone-200 shadow-sm flex items-center space-x-2">
+        <span class="text-xs font-semibold text-stone-600 flex items-center"><i data-lucide="filter" class="w-3.5 h-3.5 mr-1 text-emerald-700"></i> Finca:</span>
+        <select id="filtroFinca" onchange="filtrarPorFinca(this.value)" class="w-full p-1.5 bg-stone-100 rounded-lg border border-stone-300 text-xs font-bold text-emerald-800">
+          <option value="TODAS">Todas las fincas / cercados</option>
+        </select>
+      </div>
+
       <div id="lista-animales" class="space-y-2"></div>
     </section>
 
@@ -150,7 +163,28 @@
     </button>
   </nav>
 
-  <!-- MODAL: NUEVO ANIMAL (CON GENÉTICA PADRE/MADRE) -->
+  <!-- MODAL: NUEVA FINCA / CERCADO -->
+  <div id="modalFinca" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Nueva Finca o Cercado</h3>
+        <button onclick="closeModal('modalFinca')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formFinca" onsubmit="guardarFinca(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Nombre de la Finca / Parcela *</label>
+          <input type="text" id="f_nombre" required placeholder="Ej: Parcela Los Olivos, Pasto Norte" class="w-full p-2.5 bg-stone-100 rounded-lg border border-stone-300 font-bold text-sm">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Descripción / Observación</label>
+          <input type="text" id="f_desc" placeholder="Ej: Cercado con agua de pozo" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+        </div>
+        <button type="submit" class="w-full py-3 bg-stone-800 text-white font-bold rounded-xl text-sm shadow">Guardar Finca</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NUEVO ANIMAL -->
   <div id="modalAnimal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
     <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b pb-2">
@@ -191,8 +225,10 @@
             <input type="date" id="a_nacimiento" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
           </div>
           <div>
-            <label class="font-semibold block mb-1">Lote / Cercado</label>
-            <input type="text" id="a_lote" placeholder="Ej: Pasto Alto" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+            <label class="font-semibold block mb-1">Finca / Cercado *</label>
+            <select id="a_lote" class="w-full p-2 bg-emerald-50 rounded-lg border border-emerald-300 font-bold text-emerald-900">
+              <!-- Se rellena dinámicamente -->
+            </select>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2 bg-stone-50 p-2 rounded-xl border border-stone-200">
@@ -206,6 +242,30 @@
           </div>
         </div>
         <button type="submit" class="w-full py-3 bg-emerald-700 text-white font-bold rounded-xl text-sm shadow">Guardar Animal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MOVER ANIMAL DE FINCA -->
+  <div id="modalMover" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Mover a otra Finca</h3>
+        <button onclick="closeModal('modalMover')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formMover" onsubmit="confirmarMoverAnimal(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="m_crotal">
+        <div>
+          <label class="font-semibold block mb-1 text-stone-700">Animal seleccionado:</label>
+          <div id="m_crotal_text" class="text-base font-black text-emerald-800"></div>
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Nueva Finca / Cercado *</label>
+          <select id="m_finca" class="w-full p-2.5 bg-emerald-50 rounded-lg border border-emerald-300 font-bold text-emerald-900 text-sm">
+            <!-- Se rellena dinámicamente -->
+          </select>
+        </div>
+        <button type="submit" class="w-full py-3 bg-emerald-700 text-white font-bold rounded-xl text-sm shadow">Cambiar de Finca</button>
       </form>
     </div>
   </div>
@@ -380,8 +440,10 @@
           </select>
         </div>
         <div>
-          <label class="font-semibold block mb-1">Ubicación</label>
-          <input type="text" id="av_lugar" placeholder="Ej: Parcela Los Olivos" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          <label class="font-semibold block mb-1">Finca / Cercado</label>
+          <select id="av_lugar" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300 font-semibold">
+            <!-- Se rellena dinámicamente -->
+          </select>
         </div>
         <div>
           <label class="font-semibold block mb-1">Detalle del aviso *</label>
@@ -421,7 +483,8 @@
       console.warn("Supabase no configurado correctamente.");
     }
 
-    let DB = { animales: [], tratamientos: [], partos: [], salidas: [], avisos: [], pesos: [] };
+    let DB = { animales: [], tratamientos: [], partos: [], salidas: [], avisos: [], pesos: [], fincas: [] };
+    let fincaFiltroSeleccionada = "TODAS";
 
     async function sincronizarDatos() {
       const statusEl = document.getElementById('sync-status');
@@ -433,13 +496,14 @@
 
       statusEl.innerText = "Sincronizando...";
       try {
-        const [an, tr, pa, sa, av, pe] = await Promise.all([
+        const [an, tr, pa, sa, av, pe, fi] = await Promise.all([
           supabaseClient.from('animales').select('*'),
           supabaseClient.from('tratamientos').select('*'),
           supabaseClient.from('partos').select('*'),
           supabaseClient.from('salidas').select('*'),
           supabaseClient.from('avisos').select('*'),
-          supabaseClient.from('pesos').select('*')
+          supabaseClient.from('pesos').select('*'),
+          supabaseClient.from('fincas').select('*')
         ]);
 
         DB.animales = an.data || [];
@@ -448,8 +512,10 @@
         DB.salidas = sa.data || [];
         DB.avisos = av.data || [];
         DB.pesos = pe.data || [];
+        DB.fincas = fi.data || [];
 
         statusEl.innerText = "Sincronizado en la nube ☁️";
+        actualizarDesplegablesFincas();
         renderizarTodo();
       } catch (err) {
         statusEl.innerText = "Sin conexión (Modo offline)";
@@ -458,15 +524,61 @@
     }
 
     function cargarDatosLocal() {
-      const stored = localStorage.getItem("campofacil_db_v2");
+      const stored = localStorage.getItem("campofacil_db_v3");
       if (stored) {
         try { DB = JSON.parse(stored); } catch(e){}
       }
+      actualizarDesplegablesFincas();
       renderizarTodo();
     }
 
     function guardarEnStorageLocal() {
-      localStorage.setItem("campofacil_db_v2", JSON.stringify(DB));
+      localStorage.setItem("campofacil_db_v3", JSON.stringify(DB));
+    }
+
+    function actualizarDesplegablesFincas() {
+      const fincasList = DB.fincas.map(f => f.nombre);
+      const opcionesHtml = fincasList.map(f => `<option value="${f}">${f}</option>`).join('');
+
+      // Desplegable del filtro
+      const selectFiltro = document.getElementById('filtroFinca');
+      selectFiltro.innerHTML = `<option value="TODAS">Todas las fincas (${DB.animales.length})</option>` + 
+        fincasList.map(f => {
+          const num = DB.animales.filter(a => (a.lote || 'Sin cercado') === f).length;
+          return `<option value="${f}">${f} (${num})</option>`;
+        }).join('');
+      selectFiltro.value = fincaFiltroSeleccionada;
+
+      // Desplegable de alta animal
+      document.getElementById('a_lote').innerHTML = (fincasList.length > 0 ? opcionesHtml : `<option value="Sin cercado">Sin cercado</option>`);
+      // Desplegable de mover animal
+      document.getElementById('m_finca').innerHTML = opcionesHtml;
+      // Desplegable de aviso
+      document.getElementById('av_lugar').innerHTML = `<option value="Finca General">Finca General</option>` + opcionesHtml;
+    }
+
+    function filtrarPorFinca(finca) {
+      fincaFiltroSeleccionada = finca;
+      renderizarTodo();
+    }
+
+    async function guardarFinca(e) {
+      e.preventDefault();
+      const nueva = {
+        nombre: document.getElementById('f_nombre').value.trim(),
+        descripcion: document.getElementById('f_desc').value.trim()
+      };
+
+      DB.fincas.push(nueva);
+      guardarEnStorageLocal();
+      actualizarDesplegablesFincas();
+      closeModal('modalFinca');
+      document.getElementById('formFinca').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('fincas').insert([nueva]);
+        sincronizarDatos();
+      }
     }
 
     async function guardarAnimal(e) {
@@ -484,6 +596,7 @@
 
       DB.animales.unshift(nuevo);
       guardarEnStorageLocal();
+      actualizarDesplegablesFincas();
       renderizarTodo();
       closeModal('modalAnimal');
       document.getElementById('formAnimal').reset();
@@ -491,6 +604,33 @@
       if (supabaseClient) {
         await supabaseClient.from('animales').insert([nuevo]);
         sincronizarDatos();
+      }
+    }
+
+    function abrirModalMover(crotal, fincaActual) {
+      document.getElementById('m_crotal').value = crotal;
+      document.getElementById('m_crotal_text').innerText = crotal;
+      document.getElementById('m_finca').value = fincaActual;
+      openModal('modalMover');
+    }
+
+    async function confirmarMoverAnimal(e) {
+      e.preventDefault();
+      const crotal = document.getElementById('m_crotal').value;
+      const nuevaFinca = document.getElementById('m_finca').value;
+
+      const animal = DB.animales.find(a => a.crotal === crotal);
+      if (animal) {
+        animal.lote = nuevaFinca;
+        guardarEnStorageLocal();
+        actualizarDesplegablesFincas();
+        renderizarTodo();
+        closeModal('modalMover');
+
+        if (supabaseClient) {
+          await supabaseClient.from('animales').update({ lote: nuevaFinca }).eq('crotal', crotal);
+          sincronizarDatos();
+        }
       }
     }
 
@@ -574,6 +714,7 @@
       DB.salidas.unshift(nuevo);
       DB.animales = DB.animales.filter(a => a.crotal !== crotal);
       guardarEnStorageLocal();
+      actualizarDesplegablesFincas();
       renderizarTodo();
       closeModal('modalSalida');
       document.getElementById('formSalida').reset();
@@ -646,12 +787,17 @@
     }
 
     function renderizarTodo() {
-      document.getElementById('count-censo').innerText = DB.animales.length;
+      // Filtrar animales por finca
+      const animalesFiltrados = fincaFiltroSeleccionada === "TODAS" 
+        ? DB.animales 
+        : DB.animales.filter(a => (a.lote || 'Sin cercado') === fincaFiltroSeleccionada);
 
-      // Censo con Genética y último peso
+      document.getElementById('count-censo').innerText = animalesFiltrados.length;
+
+      // Censo con Finca, Genética y Peso
       const listaCenso = document.getElementById('lista-animales');
-      listaCenso.innerHTML = DB.animales.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay animales registrados.</p>` :
-        DB.animales.map(a => {
+      listaCenso.innerHTML = animalesFiltrados.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay animales en esta finca o cercado.</p>` :
+        animalesFiltrados.map(a => {
           const pesosAnimal = DB.pesos.filter(p => p.crotal === a.crotal);
           const ultimoPeso = pesosAnimal.length > 0 ? pesosAnimal[0].peso : null;
           return `
@@ -662,12 +808,17 @@
                   ${ultimoPeso ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded">⚖️ ${ultimoPeso} kg</span>` : ''}
                 </div>
                 <div class="text-[11px] text-stone-500">${a.especie} · ${a.sexo} ${a.raza ? '· ' + a.raza : ''}</div>
-                <div class="text-[10px] text-emerald-700 font-semibold mt-0.5">
-                  📍 ${a.lote || 'Sin cercado'} 
-                  ${a.padre || a.madre ? ` | 🧬 P: ${a.padre || '-'} / M: ${a.madre || '-'}` : ''}
+                <div class="text-[10px] text-emerald-800 font-bold mt-1 flex items-center">
+                  <i data-lucide="map-pin" class="w-3 h-3 inline mr-0.5 text-emerald-600"></i> ${a.lote || 'Sin cercado'} 
+                  ${a.padre || a.madre ? `<span class="text-stone-400 font-normal ml-2">🧬 P: ${a.padre || '-'} / M: ${a.madre || '-'}</span>` : ''}
                 </div>
               </div>
-              <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-400 p-2"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+              <div class="flex items-center space-x-1">
+                <button onclick="abrirModalMover('${a.crotal}', '${a.lote}')" title="Mover de finca" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 p-2 rounded-lg text-xs font-semibold flex items-center">
+                  <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
+                </button>
+                <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-400 p-1.5"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+              </div>
             </div>
           `;
         }).join('');
@@ -749,7 +900,7 @@
       }
 
       let html = `<div class="font-bold text-emerald-900 text-xs mb-1">Resultados para: ${q}</div>`;
-      if (animal) html += `<div class="bg-white p-2 rounded-lg border border-emerald-300 mb-1"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Lote: ${animal.lote || 'N/A'} ${animal.padre || animal.madre ? `<br>🧬 Padre: ${animal.padre || '-'} | Madre: ${animal.madre || '-'}` : ''}</div>`;
+      if (animal) html += `<div class="bg-white p-2 rounded-lg border border-emerald-300 mb-1"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Finca: <b>${animal.lote || 'Sin cercado'}</b> ${animal.padre || animal.madre ? `<br>🧬 Padre: ${animal.padre || '-'} | Madre: ${animal.madre || '-'}` : ''}</div>`;
       if (pesajes.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-amber-300 mb-1"><b>Pesos:</b> ${pesajes.map(w => `<div class="text-[10px]">• ${w.fecha}: <b>${w.peso} kg</b></div>`).join('')}</div>`;
       if (tratamientos.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-amber-300 mb-1"><b>Tratamientos:</b> ${tratamientos.map(t => `<div class="text-[10px]">• ${t.fecha}: ${t.medicamento}</div>`).join('')}</div>`;
       if (partos.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-blue-200"><b>Partos:</b> ${partos.map(p => `<div class="text-[10px]">• ${p.fecha}: ${p.vivas} cría(s)</div>`).join('')}</div>`;
@@ -757,8 +908,8 @@
     }
 
     function exportarCSV() {
-      let csv = "Tipo,Crotal,Fecha,Detalle\n";
-      DB.animales.forEach(a => csv += `Animal,${a.crotal},${a.fechanac || ''},${a.especie} ${a.sexo}\n`);
+      let csv = "Tipo,Crotal,Fecha,Finca_Detalle\n";
+      DB.animales.forEach(a => csv += `Animal,${a.crotal},${a.fechanac || ''},${a.lote || ''} - ${a.especie} ${a.sexo}\n`);
       DB.pesos.forEach(p => csv += `Peso,${p.crotal},${p.fecha},${p.peso}kg\n`);
       DB.tratamientos.forEach(t => csv += `Tratamiento,${t.crotal},${t.fecha},${t.medicamento}\n`);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
