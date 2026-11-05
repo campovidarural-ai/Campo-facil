@@ -10,18 +10,27 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+      /* Fondo de paisaje suave de pradera con capa translúcida para legibilidad */
+      background: linear-gradient(rgba(245, 245, 244, 0.93), rgba(245, 245, 244, 0.93)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
     .tab-active { color: #15803d !important; font-weight: 800; }
     .tab-active i { transform: scale(1.15); color: #15803d; transition: transform 0.2s ease; }
     .badge-retention { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    .glass-header { background: linear-gradient(135deg, #064e3b 0%, #047857 100%); }
-    .card-shadow { box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03); }
+    .glass-header { background: linear-gradient(135deg, rgba(6, 78, 59, 0.95) 0%, rgba(4, 120, 87, 0.95) 100%); backdrop-filter: blur(8px); }
+    .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03); }
+    .glass-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); }
   </style>
 </head>
-<body class="bg-stone-100 text-stone-900 pb-28 select-none min-h-screen">
+<body class="text-stone-900 pb-28 select-none min-h-screen">
 
   <!-- Header Estilizado -->
-  <header class="glass-header text-white px-4 py-3.5 sticky top-0 z-40 shadow-md">
+  <header class="glass-header text-white px-4 py-3.5 sticky top-0 z-40 shadow-md border-b border-emerald-900/20">
     <div class="max-w-md mx-auto flex justify-between items-center">
       <div class="flex items-center space-x-2.5">
         <div class="p-2 bg-emerald-700/60 rounded-2xl backdrop-blur-sm border border-emerald-400/30">
@@ -52,16 +61,16 @@
   <section class="p-3 max-w-md mx-auto">
     <div class="relative">
       <i data-lucide="search" class="absolute left-3.5 top-3.5 text-stone-400 w-4 h-4"></i>
-      <input type="text" id="crotalSearch" oninput="buscarHistorialCrotal(this.value)" placeholder="Buscar crotal (ej. ES01...)" class="w-full pl-10 pr-4 py-2.5 bg-white rounded-2xl border border-stone-200 text-xs font-bold text-stone-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 card-shadow placeholder-stone-400 uppercase tracking-wider">
+      <input type="text" id="crotalSearch" oninput="buscarHistorialCrotal(this.value)" placeholder="Buscar crotal (ej. ES01...)" class="w-full pl-10 pr-4 py-2.5 glass-card rounded-2xl border border-stone-200 text-xs font-bold text-stone-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 card-shadow placeholder-stone-400 uppercase tracking-wider">
     </div>
-    <div id="crotalSearchResult" class="hidden mt-2 p-3 bg-emerald-50/90 border border-emerald-200 rounded-2xl text-xs card-shadow"></div>
+    <div id="crotalSearchResult" class="hidden mt-2 p-3 bg-emerald-50/95 border border-emerald-200 rounded-2xl text-xs card-shadow"></div>
   </section>
 
   <!-- Contenedor Principal -->
   <main class="max-w-md mx-auto px-3 space-y-3">
     <!-- 1. CENSO Y FINCAS -->
     <section id="view-censo" class="space-y-3">
-      <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-stone-200/80 card-shadow">
+      <div class="flex justify-between items-center glass-card p-3 rounded-2xl border border-stone-200/80 card-shadow">
         <div>
           <span class="text-xs font-extrabold text-stone-400 uppercase tracking-wider block">Censo Total</span>
           <div class="text-xl font-black text-stone-800 flex items-baseline gap-1">
@@ -69,15 +78,15 @@
           </div>
         </div>
         <div class="flex space-x-1.5">
-          <button onclick="openModal('modalFinca')" class="bg-stone-800 text-white text-[11px] font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+          <button onclick="openModal('modalFinca')" class="bg-stone-800 hover:bg-stone-900 text-white text-[11px] font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
             <span>+ Finca</span>
           </button>
-          <button onclick="openModal('modalPeso')" class="bg-amber-600 text-white text-[11px] font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+          <button onclick="openModal('modalPeso')" class="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
             <i data-lucide="scale" class="w-3.5 h-3.5"></i>
             <span>Peso</span>
           </button>
-          <button onclick="openModal('modalAnimal')" class="bg-emerald-700 text-white text-[11px] font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+          <button onclick="openModal('modalAnimal')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             <span>Animal</span>
           </button>
@@ -85,11 +94,11 @@
       </div>
 
       <!-- Filtro por Finca -->
-      <div class="bg-white p-2.5 rounded-2xl border border-stone-200 card-shadow flex items-center space-x-2">
+      <div class="glass-card p-2.5 rounded-2xl border border-stone-200 card-shadow flex items-center space-x-2">
         <div class="p-1.5 bg-emerald-50 rounded-lg text-emerald-700">
           <i data-lucide="filter" class="w-4 h-4"></i>
         </div>
-        <select id="filtroFinca" onchange="filtrarPorFinca(this.value)" class="w-full p-2 bg-stone-100/80 rounded-xl border border-stone-200 text-xs font-bold text-emerald-900 focus:outline-none">
+        <select id="filtroFinca" onchange="filtrarPorFinca(this.value)" class="w-full p-2 bg-white/80 rounded-xl border border-stone-200 text-xs font-bold text-emerald-900 focus:outline-none">
           <option value="TODAS">Todas las fincas / cercados</option>
         </select>
       </div>
@@ -99,12 +108,12 @@
 
     <!-- 2. TRATAMIENTOS -->
     <section id="view-tratamientos" class="space-y-3 hidden">
-      <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-stone-200 card-shadow">
+      <div class="flex justify-between items-center glass-card p-3 rounded-2xl border border-stone-200 card-shadow">
         <div>
           <h2 class="font-extrabold text-stone-800 text-sm">Tratamientos Veterinarios</h2>
           <p class="text-[11px] text-stone-500">Control de plazos de supresión</p>
         </div>
-        <button onclick="openModal('modalTratamiento')" class="bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+        <button onclick="openModal('modalTratamiento')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span>Añadir</span>
         </button>
@@ -114,12 +123,12 @@
 
     <!-- 3. PARTOS -->
     <section id="view-partos" class="space-y-3 hidden">
-      <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-stone-200 card-shadow">
+      <div class="flex justify-between items-center glass-card p-3 rounded-2xl border border-stone-200 card-shadow">
         <div>
           <h2 class="font-extrabold text-stone-800 text-sm">Registro de Partos</h2>
           <p class="text-[11px] text-stone-500">Nacimientos y crías</p>
         </div>
-        <button onclick="openModal('modalParto')" class="bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+        <button onclick="openModal('modalParto')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span>Registrar Parto</span>
         </button>
@@ -129,12 +138,12 @@
 
     <!-- 4. SALIDAS -->
     <section id="view-salidas" class="space-y-3 hidden">
-      <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-stone-200 card-shadow">
+      <div class="flex justify-between items-center glass-card p-3 rounded-2xl border border-stone-200 card-shadow">
         <div>
           <h2 class="font-extrabold text-stone-800 text-sm">Bajas y Traslados</h2>
           <p class="text-[11px] text-stone-500">Ventas, matadero o bajas</p>
         </div>
-        <button onclick="openModal('modalSalida')" class="bg-stone-800 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+        <button onclick="openModal('modalSalida')" class="bg-stone-800 hover:bg-stone-900 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span>Registrar Salida</span>
         </button>
@@ -144,12 +153,12 @@
 
     <!-- 5. AVISOS -->
     <section id="view-avisos" class="space-y-3 hidden">
-      <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-stone-200 card-shadow">
+      <div class="flex justify-between items-center glass-card p-3 rounded-2xl border border-stone-200 card-shadow">
         <div>
           <h2 class="font-extrabold text-stone-800 text-sm">Avisos de Finca</h2>
           <p class="text-[11px] text-stone-500">Cercas rotas, agua o incidencias</p>
         </div>
-        <button onclick="openModal('modalAviso')" class="bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
+        <button onclick="openModal('modalAviso')" class="bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95 transition">
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span>Nuevo Aviso</span>
         </button>
@@ -159,7 +168,7 @@
   </main>
 
   <!-- Navegación Inferior Estilo App Nativa -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200/80 px-2 py-2 flex justify-around shadow-2xl z-30 max-w-md mx-auto">
+  <nav class="fixed bottom-0 left-0 right-0 glass-card border-t border-stone-200/80 px-2 py-2 flex justify-around shadow-2xl z-30 max-w-md mx-auto">
     <button onclick="switchTab('censo')" id="nav-censo" class="flex flex-col items-center py-1 text-stone-400 tab-active transition-all w-1/5">
       <i data-lucide="layers" class="w-5 h-5 mb-1 transition-transform"></i>
       <span class="text-[10px] font-bold">Censo</span>
@@ -186,19 +195,19 @@
 
   <!-- MODAL: NUEVA FINCA -->
   <div id="modalFinca" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5 text-emerald-700"></i> Nueva Finca</h3>
         <button onclick="closeModal('modalFinca')" class="text-stone-400 hover:text-stone-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formFinca" onsubmit="guardarFinca(event)" class="space-y-3.5 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Nombre de la Finca / Cercado *</label>
-          <input type="text" id="f_nombre" required placeholder="Ej: Parcela Los Olivos, Pasto Norte" class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 font-bold text-sm focus:ring-2 focus:ring-emerald-600 outline-none">
+          <input type="text" id="f_nombre" required placeholder="Ej: Parcela Los Olivos, Pasto Norte" class="w-full p-3 bg-white rounded-xl border border-stone-200 font-bold text-sm focus:ring-2 focus:ring-emerald-600 outline-none">
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Descripción / Observación</label>
-          <input type="text" id="f_desc" placeholder="Ej: Cercado con agua de pozo" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 outline-none">
+          <input type="text" id="f_desc" placeholder="Ej: Cercado con agua de pozo" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 outline-none font-medium">
         </div>
         <button type="submit" class="w-full py-3.5 bg-stone-900 hover:bg-black text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">Guardar Finca</button>
       </form>
@@ -207,20 +216,20 @@
 
   <!-- MODAL: NUEVO ANIMAL -->
   <div id="modalAnimal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-emerald-700"></i> Alta de Animal</h3>
         <button onclick="closeModal('modalAnimal')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formAnimal" onsubmit="guardarAnimal(event)" class="space-y-3 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Crotal / Identificador *</label>
-          <input type="text" id="a_crotal" required placeholder="Ej: ES091234567890" class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 uppercase text-sm font-black text-emerald-900 tracking-wider focus:ring-2 focus:ring-emerald-600 outline-none">
+          <input type="text" id="a_crotal" required placeholder="Ej: ES091234567890" class="w-full p-3 bg-white rounded-xl border border-stone-200 uppercase text-sm font-black text-emerald-900 tracking-wider focus:ring-2 focus:ring-emerald-600 outline-none">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Especie</label>
-            <select id="a_especie" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <select id="a_especie" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
               <option value="Vacuno">Vacuno</option>
               <option value="Ovino">Ovino</option>
               <option value="Caprino">Caprino</option>
@@ -230,7 +239,7 @@
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Sexo</label>
-            <select id="a_sexo" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <select id="a_sexo" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
               <option value="Hembra">Hembra</option>
               <option value="Macho">Macho</option>
             </select>
@@ -238,19 +247,19 @@
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Raza / Tipo</label>
-          <input type="text" id="a_raza" placeholder="Ej: Limusina, Frisona..." class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+          <input type="text" id="a_raza" placeholder="Ej: Limusina, Frisona..." class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Fecha Nacimiento</label>
-            <input type="date" id="a_nacimiento" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <input type="date" id="a_nacimiento" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Finca / Cercado *</label>
             <select id="a_lote" class="w-full p-2.5 bg-emerald-50 rounded-xl border border-emerald-300 font-black text-emerald-900"></select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-2 bg-stone-50 p-3 rounded-2xl border border-stone-200">
+        <div class="grid grid-cols-2 gap-2 bg-white/60 p-3 rounded-2xl border border-stone-200">
           <div>
             <label class="font-bold block mb-1 text-emerald-800">Crotal Padre</label>
             <input type="text" id="a_padre" placeholder="Opcional" class="w-full p-2 bg-white rounded-lg border border-stone-200 uppercase font-semibold">
@@ -267,14 +276,14 @@
 
   <!-- MODAL: MOVER FINCA -->
   <div id="modalMover" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base">Mover de Finca</h3>
         <button onclick="closeModal('modalMover')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formMover" onsubmit="confirmarMoverAnimal(event)" class="space-y-3.5 text-xs">
         <input type="hidden" id="m_crotal">
-        <div class="bg-stone-50 p-3 rounded-2xl border border-stone-200">
+        <div class="bg-white/80 p-3 rounded-2xl border border-stone-200">
           <span class="text-[11px] font-bold text-stone-500 block">Animal:</span>
           <div id="m_crotal_text" class="text-base font-black text-emerald-900 tracking-wider"></div>
         </div>
@@ -289,24 +298,24 @@
 
   <!-- MODAL: REGISTRAR PESO -->
   <div id="modalPeso" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base flex items-center gap-2"><i data-lucide="scale" class="w-5 h-5 text-amber-600"></i> Registrar Pesaje</h3>
         <button onclick="closeModal('modalPeso')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formPeso" onsubmit="guardarPeso(event)" class="space-y-3.5 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Crotal del Animal *</label>
-          <input type="text" id="w_crotal" required placeholder="Ej: ES09..." class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 uppercase font-black text-sm text-amber-900">
+          <input type="text" id="w_crotal" required placeholder="Ej: ES09..." class="w-full p-3 bg-white rounded-xl border border-stone-200 uppercase font-black text-sm text-amber-900">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Peso (kg) *</label>
-            <input type="number" step="0.1" id="w_peso" required placeholder="Ej: 450" class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 font-black text-sm text-stone-900">
+            <input type="number" step="0.1" id="w_peso" required placeholder="Ej: 450" class="w-full p-3 bg-white rounded-xl border border-stone-200 font-black text-sm text-stone-900">
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Fecha Pesaje</label>
-            <input type="date" id="w_fecha" required class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <input type="date" id="w_fecha" required class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
           </div>
         </div>
         <button type="submit" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">Guardar Pesaje</button>
@@ -316,37 +325,37 @@
 
   <!-- MODAL: TRATAMIENTO -->
   <div id="modalTratamiento" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base">Tratamiento Veterinario</h3>
         <button onclick="closeModal('modalTratamiento')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formTratamiento" onsubmit="guardarTratamiento(event)" class="space-y-3 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Crotal del Animal *</label>
-          <input type="text" id="t_crotal" required placeholder="Crotal del animal" class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 uppercase font-black text-sm">
+          <input type="text" id="t_crotal" required placeholder="Crotal del animal" class="w-full p-3 bg-white rounded-xl border border-stone-200 uppercase font-black text-sm">
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Medicamento / Producto *</label>
-          <input type="text" id="t_medicamento" required placeholder="Ej: Antibiótico X" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+          <input type="text" id="t_medicamento" required placeholder="Ej: Antibiótico X" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Fecha Apl.</label>
-            <input type="date" id="t_fecha" required class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <input type="date" id="t_fecha" required class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Supresión (días)</label>
-            <input type="number" id="t_dias" min="0" value="0" required class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-black">
+            <input type="number" id="t_dias" min="0" value="0" required class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-black">
           </div>
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Dosis</label>
-          <input type="text" id="t_dosis" placeholder="Ej: 20ml intramuscular" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+          <input type="text" id="t_dosis" placeholder="Ej: 20ml intramuscular" class="w-full p-2.5 bg-white rounded-xl border border-stone-200">
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Motivo</label>
-          <input type="text" id="t_motivo" placeholder="Ej: Mastitis, cojera..." class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+          <input type="text" id="t_motivo" placeholder="Ej: Mastitis, cojera..." class="w-full p-2.5 bg-white rounded-xl border border-stone-200">
         </div>
         <button type="submit" class="w-full py-3.5 bg-amber-600 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">Registrar Tratamiento</button>
       </form>
@@ -355,24 +364,24 @@
 
   <!-- MODAL: PARTO -->
   <div id="modalParto" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base">Registrar Parto</h3>
         <button onclick="closeModal('modalParto')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formParto" onsubmit="guardarParto(event)" class="space-y-3 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Crotal Madre *</label>
-          <input type="text" id="p_madre" required placeholder="Crotal de la madre" class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 uppercase font-black text-sm">
+          <input type="text" id="p_madre" required placeholder="Crotal de la madre" class="w-full p-3 bg-white rounded-xl border border-stone-200 uppercase font-black text-sm">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Fecha Parto</label>
-            <input type="date" id="p_fecha" required class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <input type="date" id="p_fecha" required class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Tipo Parto</label>
-            <select id="p_tipo" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <select id="p_tipo" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
               <option value="Natural">Natural fácil</option>
               <option value="Asistido">Asistido</option>
               <option value="Cesárea">Cesárea</option>
@@ -382,16 +391,16 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Crías Vivas</label>
-            <input type="number" id="p_vivas" min="0" value="1" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-black">
+            <input type="number" id="p_vivas" min="0" value="1" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-black">
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Crotal Cría</label>
-            <input type="text" id="p_cria_crotal" placeholder="Opcional" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 uppercase font-bold">
+            <input type="text" id="p_cria_crotal" placeholder="Opcional" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 uppercase font-bold">
           </div>
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Observaciones</label>
-          <textarea id="p_obs" rows="2" placeholder="Notas..." class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200"></textarea>
+          <textarea id="p_obs" rows="2" placeholder="Notas..." class="w-full p-2.5 bg-white rounded-xl border border-stone-200"></textarea>
         </div>
         <button type="submit" class="w-full py-3.5 bg-emerald-700 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">Guardar Parto</button>
       </form>
@@ -400,20 +409,20 @@
 
   <!-- MODAL: SALIDA -->
   <div id="modalSalida" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base">Registrar Salida / Baja</h3>
         <button onclick="closeModal('modalSalida')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formSalida" onsubmit="guardarSalida(event)" class="space-y-3 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Crotal Animal *</label>
-          <input type="text" id="s_crotal" required placeholder="Crotal del animal" class="w-full p-3 bg-stone-50 rounded-xl border border-stone-200 uppercase font-black text-sm">
+          <input type="text" id="s_crotal" required placeholder="Crotal del animal" class="w-full p-3 bg-white rounded-xl border border-stone-200 uppercase font-black text-sm">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="font-bold block mb-1 text-stone-700">Tipo Salida</label>
-            <select id="s_tipo" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <select id="s_tipo" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
               <option value="Venta / Matadero">Venta / Matadero</option>
               <option value="Venta / Vida">Venta / Vida</option>
               <option value="Muerte en Finca">Muerte en Finca</option>
@@ -422,16 +431,16 @@
           </div>
           <div>
             <label class="font-bold block mb-1 text-stone-700">Fecha</label>
-            <input type="date" id="s_fecha" required class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+            <input type="date" id="s_fecha" required class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
           </div>
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Nº Guía Sanitaria</label>
-          <input type="text" id="s_guia" placeholder="Ej: GU-99123" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+          <input type="text" id="s_guia" placeholder="Ej: GU-99123" class="w-full p-2.5 bg-white rounded-xl border border-stone-200">
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Destino</label>
-          <input type="text" id="s_destino" placeholder="Ej: Matadero Municipal" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+          <input type="text" id="s_destino" placeholder="Ej: Matadero Municipal" class="w-full p-2.5 bg-white rounded-xl border border-stone-200">
         </div>
         <button type="submit" class="w-full py-3.5 bg-stone-900 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">Confirmar Salida</button>
       </form>
@@ -440,15 +449,15 @@
 
   <!-- MODAL: AVISO -->
   <div id="modalAviso" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-3 max-h-[90vh] overflow-y-auto card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base">Aviso de Finca</h3>
         <button onclick="closeModal('modalAviso')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formAviso" onsubmit="guardarAviso(event)" class="space-y-3 text-xs">
         <div>
           <label class="font-bold block mb-1 text-stone-700">Tipo de Aviso</label>
-          <select id="av_tipo" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold">
+          <select id="av_tipo" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold">
             <option value="Cercado / Pastor">Cercado o Pastor Roto</option>
             <option value="Agua / Bebedero">Agua / Bebedero Sin Caudal</option>
             <option value="Animal Sospechoso">Animal Aislado o Enfermo</option>
@@ -458,11 +467,11 @@
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Finca / Cercado</label>
-          <select id="av_lugar" class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200 font-semibold"></select>
+          <select id="av_lugar" class="w-full p-2.5 bg-white rounded-xl border border-stone-200 font-semibold"></select>
         </div>
         <div>
           <label class="font-bold block mb-1 text-stone-700">Detalle *</label>
-          <textarea id="av_texto" required rows="3" placeholder="Describe la incidencia..." class="w-full p-2.5 bg-stone-50 rounded-xl border border-stone-200"></textarea>
+          <textarea id="av_texto" required rows="3" placeholder="Describe la incidencia..." class="w-full p-2.5 bg-white rounded-xl border border-stone-200"></textarea>
         </div>
         <button type="submit" class="w-full py-3.5 bg-rose-700 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 transition">Guardar Aviso</button>
       </form>
@@ -471,8 +480,8 @@
 
   <!-- MODAL EXPORTAR -->
   <div id="modalExportModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
-      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+    <div class="glass-card rounded-3xl max-w-sm w-full p-5 space-y-4 card-shadow">
+      <div class="flex justify-between items-center border-b border-stone-200/60 pb-3">
         <h3 class="font-extrabold text-stone-800 text-base">Exportar Datos</h3>
         <button onclick="closeModal('exportModal')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
@@ -804,30 +813,30 @@
 
       // Tarjetas Censo
       const listaCenso = document.getElementById('lista-animales');
-      listaCenso.innerHTML = animalesFiltrados.length === 0 ? `<p class="text-xs text-stone-400 text-center py-6 font-medium">No hay animales en esta finca o cercado.</p>` :
+      listaCenso.innerHTML = animalesFiltrados.length === 0 ? `<p class="text-xs text-stone-500 text-center py-6 font-semibold glass-card rounded-2xl border border-stone-200">No hay animales en esta finca o cercado.</p>` :
         animalesFiltrados.map(a => {
           const pesosAnimal = DB.pesos.filter(p => p.crotal === a.crotal);
           const ultimoPeso = pesosAnimal.length > 0 ? pesosAnimal[0].peso : null;
           return `
-            <div class="bg-white p-3.5 rounded-2xl border border-stone-200/90 card-shadow flex justify-between items-center transition hover:border-emerald-300">
+            <div class="glass-card p-3.5 rounded-2xl border border-stone-200/90 card-shadow flex justify-between items-center transition hover:border-emerald-300">
               <div class="space-y-1">
                 <div class="flex items-center space-x-2">
                   <span class="font-black text-sm text-stone-800 tracking-wider font-mono">${a.crotal}</span>
                   ${ultimoPeso ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-200">⚖️ ${ultimoPeso} kg</span>` : ''}
                 </div>
-                <div class="text-[11px] font-semibold text-stone-500">${a.especie} · ${a.sexo} ${a.raza ? '· ' + a.raza : ''}</div>
-                <div class="text-[10px] text-emerald-800 font-bold flex items-center gap-1 pt-0.5">
+                <div class="text-[11px] font-semibold text-stone-600">${a.especie} · ${a.sexo} ${a.raza ? '· ' + a.raza : ''}</div>
+                <div class="text-[10px] text-emerald-900 font-bold flex items-center gap-1 pt-0.5">
                   <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200/60 flex items-center gap-1">
                     <i data-lucide="map-pin" class="w-3 h-3"></i> ${a.lote || 'Sin cercado'}
                   </span>
-                  ${a.padre || a.madre ? `<span class="text-stone-400 font-normal ml-1">🧬 P: ${a.padre || '-'} / M: ${a.madre || '-'}</span>` : ''}
+                  ${a.padre || a.madre ? `<span class="text-stone-500 font-medium ml-1">🧬 P: ${a.padre || '-'} / M: ${a.madre || '-'}</span>` : ''}
                 </div>
               </div>
               <div class="flex items-center space-x-1">
-                <button onclick="abrirModalMover('${a.crotal}', '${a.lote}')" title="Mover de finca" class="bg-stone-100 hover:bg-emerald-50 text-stone-600 hover:text-emerald-700 p-2 rounded-xl text-xs font-semibold transition active:scale-90">
+                <button onclick="abrirModalMover('${a.crotal}', '${a.lote}')" title="Mover de finca" class="bg-white/80 hover:bg-emerald-50 text-stone-700 hover:text-emerald-700 p-2 rounded-xl text-xs font-semibold transition active:scale-90 border border-stone-200">
                   <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
                 </button>
-                <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-300 hover:text-stone-600 p-1.5"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-400 hover:text-stone-700 p-1.5"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
               </div>
             </div>
           `;
@@ -836,50 +845,50 @@
       // Tarjetas Tratamientos
       const listaTrat = document.getElementById('lista-tratamientos');
       const hoy = new Date();
-      listaTrat.innerHTML = DB.tratamientos.length === 0 ? `<p class="text-xs text-stone-400 text-center py-6 font-medium">No hay tratamientos registrados.</p>` :
+      listaTrat.innerHTML = DB.tratamientos.length === 0 ? `<p class="text-xs text-stone-500 text-center py-6 font-semibold glass-card rounded-2xl border border-stone-200">No hay tratamientos registrados.</p>` :
         DB.tratamientos.map(t => {
           const fFin = new Date(t.fecha);
           fFin.setDate(fFin.getDate() + (t.dias || 0));
           const enSupresion = fFin >= hoy && t.dias > 0;
           return `
-            <div class="bg-white p-3.5 rounded-2xl border ${enSupresion ? 'border-amber-400 bg-amber-50/30' : 'border-stone-200'} card-shadow space-y-1">
+            <div class="glass-card p-3.5 rounded-2xl border ${enSupresion ? 'border-amber-400 bg-amber-50/60' : 'border-stone-200'} card-shadow space-y-1">
               <div class="flex justify-between items-start">
                 <span class="font-black text-xs text-stone-800 font-mono tracking-wider">${t.crotal}</span>
                 ${enSupresion ? `<span class="bg-amber-600 text-white font-black text-[9px] px-2 py-0.5 rounded-full badge-retention uppercase">SUPRESIÓN HASTA ${fFin.toLocaleDateString()}</span>` : `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Apto / Cumplido</span>`}
               </div>
               <div class="font-black text-xs text-stone-900 mt-1">${t.medicamento}</div>
-              <div class="text-[11px] text-stone-500 font-medium">${t.motivo || ''} ${t.dosis ? '· Dosis: ' + t.dosis : ''}</div>
+              <div class="text-[11px] text-stone-600 font-medium">${t.motivo || ''} ${t.dosis ? '· Dosis: ' + t.dosis : ''}</div>
             </div>`;
         }).join('');
 
       // Tarjetas Partos
       const listaPartos = document.getElementById('lista-partos');
-      listaPartos.innerHTML = DB.partos.length === 0 ? `<p class="text-xs text-stone-400 text-center py-6 font-medium">No hay partos registrados.</p>` :
+      listaPartos.innerHTML = DB.partos.length === 0 ? `<p class="text-xs text-stone-500 text-center py-6 font-semibold glass-card rounded-2xl border border-stone-200">No hay partos registrados.</p>` :
         DB.partos.map(p => `
-          <div class="bg-white p-3.5 rounded-2xl border border-stone-200 card-shadow space-y-1.5">
+          <div class="glass-card p-3.5 rounded-2xl border border-stone-200 card-shadow space-y-1.5">
             <div class="flex justify-between items-center"><span class="font-black text-xs text-stone-800 font-mono">Madre: ${p.madre}</span><span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">${p.fecha}</span></div>
             <div class="text-xs text-stone-700 font-bold">${p.vivas} cría(s) nacida(s) · Parto ${p.tipo}</div>
-            ${p.crotalcria ? `<div class="text-[11px] text-emerald-700 font-mono font-bold bg-emerald-50/80 p-1.5 rounded-lg border border-emerald-200/50">Crotal cría: ${p.crotalcria}</div>` : ''}
+            ${p.crotalcria ? `<div class="text-[11px] text-emerald-700 font-mono font-bold bg-white/80 p-1.5 rounded-lg border border-emerald-200/50">Crotal cría: ${p.crotalcria}</div>` : ''}
           </div>`).join('');
 
       // Tarjetas Salidas
       const listaSalidas = document.getElementById('lista-salidas');
-      listaSalidas.innerHTML = DB.salidas.length === 0 ? `<p class="text-xs text-stone-400 text-center py-6 font-medium">No hay salidas registradas.</p>` :
+      listaSalidas.innerHTML = DB.salidas.length === 0 ? `<p class="text-xs text-stone-500 text-center py-6 font-semibold glass-card rounded-2xl border border-stone-200">No hay salidas registradas.</p>` :
         DB.salidas.map(s => `
-          <div class="bg-white p-3.5 rounded-2xl border border-stone-200 card-shadow space-y-1">
+          <div class="glass-card p-3.5 rounded-2xl border border-stone-200 card-shadow space-y-1">
             <div class="flex justify-between items-center"><span class="font-black text-xs text-stone-800 font-mono">${s.crotal}</span><span class="text-[10px] font-black bg-stone-900 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">${s.tipo}</span></div>
-            <div class="text-xs text-stone-600 font-medium">Fecha: ${s.fecha} ${s.guia ? '· Guía: ' + s.guia : ''}</div>
+            <div class="text-xs text-stone-700 font-medium">Fecha: ${s.fecha} ${s.guia ? '· Guía: ' + s.guia : ''}</div>
           </div>`).join('');
 
       // Tarjetas Avisos
       const listaAvisos = document.getElementById('lista-avisos');
-      listaAvisos.innerHTML = DB.avisos.length === 0 ? `<p class="text-xs text-stone-400 text-center py-6 font-medium">No hay avisos pendientes.</p>` :
+      listaAvisos.innerHTML = DB.avisos.length === 0 ? `<p class="text-xs text-stone-500 text-center py-6 font-semibold glass-card rounded-2xl border border-stone-200">No hay avisos pendientes.</p>` :
         DB.avisos.map(av => `
-          <div class="bg-white p-3.5 rounded-2xl border ${av.resuelto ? 'border-stone-200 opacity-60' : 'border-rose-300 bg-rose-50/30'} card-shadow flex items-start justify-between">
+          <div class="glass-card p-3.5 rounded-2xl border ${av.resuelto ? 'border-stone-200 opacity-60' : 'border-rose-300 bg-rose-50/50'} card-shadow flex items-start justify-between">
             <div class="space-y-1">
               <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${av.resuelto ? 'bg-stone-200 text-stone-700' : 'bg-rose-600 text-white'}">${av.tipo}</span>
               <div class="text-xs font-bold text-stone-800 pt-1">${av.texto}</div>
-              <div class="text-[10px] text-stone-500 font-semibold flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-stone-400"></i> ${av.lugar || 'Finca'}</div>
+              <div class="text-[10px] text-stone-600 font-semibold flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-stone-400"></i> ${av.lugar || 'Finca'}</div>
             </div>
             <button onclick="resolverAviso(${av.id})" class="p-2 text-stone-400"><i data-lucide="${av.resuelto ? 'check-circle-2' : 'circle'}" class="w-6 h-6 text-${av.resuelto ? 'emerald-600' : 'rose-400'}"></i></button>
           </div>`).join('');
@@ -905,15 +914,15 @@
       const pesajes = DB.pesos.filter(p => p.crotal.includes(q));
 
       if (!animal && tratamientos.length === 0 && partos.length === 0 && pesajes.length === 0) {
-        res.innerHTML = `<div class="text-stone-500 font-medium">No se encontró ningún registro para "${q}".</div>`;
+        res.innerHTML = `<div class="text-stone-600 font-semibold">No se encontró ningún registro para "${q}".</div>`;
         return;
       }
 
       let html = `<div class="font-extrabold text-emerald-900 text-xs mb-1.5">Resultados para: ${q}</div>`;
-      if (animal) html += `<div class="bg-white p-2.5 rounded-xl border border-emerald-300 mb-1.5"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Finca: <b>${animal.lote || 'Sin cercado'}</b> ${animal.padre || animal.madre ? `<br>🧬 P: ${animal.padre || '-'} | M: ${animal.madre || '-'}` : ''}</div>`;
-      if (pesajes.length > 0) html += `<div class="bg-white p-2.5 rounded-xl border border-amber-300 mb-1.5"><b>Pesos:</b> ${pesajes.map(w => `<div class="text-[10px]">• ${w.fecha}: <b>${w.peso} kg</b></div>`).join('')}</div>`;
-      if (tratamientos.length > 0) html += `<div class="bg-white p-2.5 rounded-xl border border-amber-300 mb-1.5"><b>Tratamientos:</b> ${tratamientos.map(t => `<div class="text-[10px]">• ${t.fecha}: ${t.medicamento}</div>`).join('')}</div>`;
-      if (partos.length > 0) html += `<div class="bg-white p-2.5 rounded-xl border border-blue-200"><b>Partos:</b> ${partos.map(p => `<div class="text-[10px]">• ${p.fecha}: ${p.vivas} cría(s)</div>`).join('')}</div>`;
+      if (animal) html += `<div class="bg-white p-2.5 rounded-xl border border-emerald-300 mb-1.5 shadow-xs"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Finca: <b>${animal.lote || 'Sin cercado'}</b> ${animal.padre || animal.madre ? `<br>🧬 P: ${animal.padre || '-'} | M: ${animal.madre || '-'}` : ''}</div>`;
+      if (pesajes.length > 0) html += `<div class="bg-white p-2.5 rounded-xl border border-amber-300 mb-1.5 shadow-xs"><b>Pesos:</b> ${pesajes.map(w => `<div class="text-[10px]">• ${w.fecha}: <b>${w.peso} kg</b></div>`).join('')}</div>`;
+      if (tratamientos.length > 0) html += `<div class="bg-white p-2.5 rounded-xl border border-amber-300 mb-1.5 shadow-xs"><b>Tratamientos:</b> ${tratamientos.map(t => `<div class="text-[10px]">• ${t.fecha}: ${t.medicamento}</div>`).join('')}</div>`;
+      if (partos.length > 0) html += `<div class="bg-white p-2.5 rounded-xl border border-blue-200 shadow-xs"><b>Partos:</b> ${partos.map(p => `<div class="text-[10px]">• ${p.fecha}: ${p.vivas} cría(s)</div>`).join('')}</div>`;
       res.innerHTML = html;
     }
 
