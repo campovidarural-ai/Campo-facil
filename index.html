@@ -51,10 +51,16 @@
     <section id="view-censo" class="space-y-3">
       <div class="flex justify-between items-center">
         <h2 class="font-bold text-stone-700 text-base">Censo Activo (<span id="count-censo">0</span>)</h2>
-        <button onclick="openModal('modalAnimal')" class="bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
-          <i data-lucide="plus" class="w-4 h-4"></i>
-          <span>Nuevo Animal</span>
-        </button>
+        <div class="flex space-x-1">
+          <button onclick="openModal('modalPeso')" class="bg-amber-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+            <i data-lucide="scale" class="w-4 h-4"></i>
+            <span>Pesaje</span>
+          </button>
+          <button onclick="openModal('modalAnimal')" class="bg-emerald-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl flex items-center space-x-1 shadow active:scale-95">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Animal</span>
+          </button>
+        </div>
       </div>
       <div id="lista-animales" class="space-y-2"></div>
     </section>
@@ -144,11 +150,11 @@
     </button>
   </nav>
 
-  <!-- MODAL: NUEVO ANIMAL -->
+  <!-- MODAL: NUEVO ANIMAL (CON GENÉTICA PADRE/MADRE) -->
   <div id="modalAnimal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
     <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-stone-800">Alta de Animal</h3>
+        <h3 class="font-bold text-stone-800">Alta de Animal y Genética</h3>
         <button onclick="closeModal('modalAnimal')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="formAnimal" onsubmit="guardarAnimal(event)" class="space-y-3 text-xs">
@@ -189,7 +195,44 @@
             <input type="text" id="a_lote" placeholder="Ej: Pasto Alto" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
           </div>
         </div>
+        <div class="grid grid-cols-2 gap-2 bg-stone-50 p-2 rounded-xl border border-stone-200">
+          <div>
+            <label class="font-semibold block mb-1 text-emerald-800">Crotal Padre</label>
+            <input type="text" id="a_padre" placeholder="Opcional" class="w-full p-2 bg-white rounded-lg border border-stone-300 uppercase">
+          </div>
+          <div>
+            <label class="font-semibold block mb-1 text-emerald-800">Crotal Madre</label>
+            <input type="text" id="a_madre" placeholder="Opcional" class="w-full p-2 bg-white rounded-lg border border-stone-300 uppercase">
+          </div>
+        </div>
         <button type="submit" class="w-full py-3 bg-emerald-700 text-white font-bold rounded-xl text-sm shadow">Guardar Animal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR PESO -->
+  <div id="modalPeso" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-3">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-stone-800">Registrar Pesaje</h3>
+        <button onclick="closeModal('modalPeso')" class="text-stone-400 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="formPeso" onsubmit="guardarPeso(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Crotal del Animal *</label>
+          <input type="text" id="w_crotal" required placeholder="Ej: ES09..." class="w-full p-2.5 bg-stone-100 rounded-lg border border-stone-300 uppercase font-bold text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-semibold block mb-1">Peso (kg) *</label>
+            <input type="number" step="0.1" id="w_peso" required placeholder="Ej: 450" class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300 font-bold text-sm">
+          </div>
+          <div>
+            <label class="font-semibold block mb-1">Fecha Pesaje</label>
+            <input type="date" id="w_fecha" required class="w-full p-2 bg-stone-100 rounded-lg border border-stone-300">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 bg-amber-700 text-white font-bold rounded-xl text-sm shadow">Guardar Peso</button>
       </form>
     </div>
   </div>
@@ -368,9 +411,6 @@
 
   <!-- Script JS Lógica con Supabase -->
   <script>
-    // ==========================================
-    // CONFIGURACIÓN DE SUPABASE (CONFIGURADO)
-    // ==========================================
     const SUPABASE_URL = "https://logqmckqipqpvh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_WX_ZQL1pnqPR05RwCch-Cg_gsU9fmUZ";
     
@@ -381,7 +421,7 @@
       console.warn("Supabase no configurado correctamente.");
     }
 
-    let DB = { animales: [], tratamientos: [], partos: [], salidas: [], avisos: [] };
+    let DB = { animales: [], tratamientos: [], partos: [], salidas: [], avisos: [], pesos: [] };
 
     async function sincronizarDatos() {
       const statusEl = document.getElementById('sync-status');
@@ -393,12 +433,13 @@
 
       statusEl.innerText = "Sincronizando...";
       try {
-        const [an, tr, pa, sa, av] = await Promise.all([
+        const [an, tr, pa, sa, av, pe] = await Promise.all([
           supabaseClient.from('animales').select('*'),
           supabaseClient.from('tratamientos').select('*'),
           supabaseClient.from('partos').select('*'),
           supabaseClient.from('salidas').select('*'),
-          supabaseClient.from('avisos').select('*')
+          supabaseClient.from('avisos').select('*'),
+          supabaseClient.from('pesos').select('*')
         ]);
 
         DB.animales = an.data || [];
@@ -406,6 +447,7 @@
         DB.partos = pa.data || [];
         DB.salidas = sa.data || [];
         DB.avisos = av.data || [];
+        DB.pesos = pe.data || [];
 
         statusEl.innerText = "Sincronizado en la nube ☁️";
         renderizarTodo();
@@ -416,7 +458,7 @@
     }
 
     function cargarDatosLocal() {
-      const stored = localStorage.getItem("campofacil_db_v1");
+      const stored = localStorage.getItem("campofacil_db_v2");
       if (stored) {
         try { DB = JSON.parse(stored); } catch(e){}
       }
@@ -424,7 +466,7 @@
     }
 
     function guardarEnStorageLocal() {
-      localStorage.setItem("campofacil_db_v1", JSON.stringify(DB));
+      localStorage.setItem("campofacil_db_v2", JSON.stringify(DB));
     }
 
     async function guardarAnimal(e) {
@@ -435,7 +477,9 @@
         sexo: document.getElementById('a_sexo').value,
         raza: document.getElementById('a_raza').value,
         fechanac: document.getElementById('a_nacimiento').value || null,
-        lote: document.getElementById('a_lote').value
+        lote: document.getElementById('a_lote').value,
+        padre: document.getElementById('a_padre').value.trim().toUpperCase() || null,
+        madre: document.getElementById('a_madre').value.trim().toUpperCase() || null
       };
 
       DB.animales.unshift(nuevo);
@@ -446,6 +490,26 @@
 
       if (supabaseClient) {
         await supabaseClient.from('animales').insert([nuevo]);
+        sincronizarDatos();
+      }
+    }
+
+    async function guardarPeso(e) {
+      e.preventDefault();
+      const nuevo = {
+        crotal: document.getElementById('w_crotal').value.trim().toUpperCase(),
+        peso: parseFloat(document.getElementById('w_peso').value) || 0,
+        fecha: document.getElementById('w_fecha').value
+      };
+
+      DB.pesos.unshift(nuevo);
+      guardarEnStorageLocal();
+      renderizarTodo();
+      closeModal('modalPeso');
+      document.getElementById('formPeso').reset();
+
+      if (supabaseClient) {
+        await supabaseClient.from('pesos').insert([nuevo]);
         sincronizarDatos();
       }
     }
@@ -584,19 +648,29 @@
     function renderizarTodo() {
       document.getElementById('count-censo').innerText = DB.animales.length;
 
-      // Censo
+      // Censo con Genética y último peso
       const listaCenso = document.getElementById('lista-animales');
       listaCenso.innerHTML = DB.animales.length === 0 ? `<p class="text-xs text-stone-400 text-center py-4">No hay animales registrados.</p>` :
-        DB.animales.map(a => `
-          <div class="bg-white p-3 rounded-xl border border-stone-200 shadow-sm flex justify-between items-center">
-            <div>
-              <div class="font-black text-sm text-stone-800">${a.crotal}</div>
-              <div class="text-[11px] text-stone-500">${a.especie} · ${a.sexo} ${a.raza ? '· ' + a.raza : ''}</div>
-              <div class="text-[10px] text-emerald-700 font-semibold mt-0.5">📍 ${a.lote || 'Sin cercado'}</div>
+        DB.animales.map(a => {
+          const pesosAnimal = DB.pesos.filter(p => p.crotal === a.crotal);
+          const ultimoPeso = pesosAnimal.length > 0 ? pesosAnimal[0].peso : null;
+          return `
+            <div class="bg-white p-3 rounded-xl border border-stone-200 shadow-sm flex justify-between items-center">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="font-black text-sm text-stone-800">${a.crotal}</span>
+                  ${ultimoPeso ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded">⚖️ ${ultimoPeso} kg</span>` : ''}
+                </div>
+                <div class="text-[11px] text-stone-500">${a.especie} · ${a.sexo} ${a.raza ? '· ' + a.raza : ''}</div>
+                <div class="text-[10px] text-emerald-700 font-semibold mt-0.5">
+                  📍 ${a.lote || 'Sin cercado'} 
+                  ${a.padre || a.madre ? ` | 🧬 P: ${a.padre || '-'} / M: ${a.madre || '-'}` : ''}
+                </div>
+              </div>
+              <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-400 p-2"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
             </div>
-            <button onclick="copiarAlBuscador('${a.crotal}')" class="text-stone-400 p-2"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
       // Tratamientos
       const listaTrat = document.getElementById('lista-tratamientos');
@@ -667,14 +741,16 @@
       const animal = DB.animales.find(a => a.crotal.includes(q));
       const tratamientos = DB.tratamientos.filter(t => t.crotal.includes(q));
       const partos = DB.partos.filter(p => p.madre.includes(q));
+      const pesajes = DB.pesos.filter(p => p.crotal.includes(q));
 
-      if (!animal && tratamientos.length === 0 && partos.length === 0) {
+      if (!animal && tratamientos.length === 0 && partos.length === 0 && pesajes.length === 0) {
         res.innerHTML = `<div class="text-stone-500">No se encontró ningún registro para "${q}".</div>`;
         return;
       }
 
       let html = `<div class="font-bold text-emerald-900 text-xs mb-1">Resultados para: ${q}</div>`;
-      if (animal) html += `<div class="bg-white p-2 rounded-lg border border-emerald-300 mb-1"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Lote: ${animal.lote || 'N/A'}</div>`;
+      if (animal) html += `<div class="bg-white p-2 rounded-lg border border-emerald-300 mb-1"><b>Censo:</b> ${animal.crotal} (${animal.especie}) | Lote: ${animal.lote || 'N/A'} ${animal.padre || animal.madre ? `<br>🧬 Padre: ${animal.padre || '-'} | Madre: ${animal.madre || '-'}` : ''}</div>`;
+      if (pesajes.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-amber-300 mb-1"><b>Pesos:</b> ${pesajes.map(w => `<div class="text-[10px]">• ${w.fecha}: <b>${w.peso} kg</b></div>`).join('')}</div>`;
       if (tratamientos.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-amber-300 mb-1"><b>Tratamientos:</b> ${tratamientos.map(t => `<div class="text-[10px]">• ${t.fecha}: ${t.medicamento}</div>`).join('')}</div>`;
       if (partos.length > 0) html += `<div class="bg-white p-2 rounded-lg border border-blue-200"><b>Partos:</b> ${partos.map(p => `<div class="text-[10px]">• ${p.fecha}: ${p.vivas} cría(s)</div>`).join('')}</div>`;
       res.innerHTML = html;
@@ -683,6 +759,7 @@
     function exportarCSV() {
       let csv = "Tipo,Crotal,Fecha,Detalle\n";
       DB.animales.forEach(a => csv += `Animal,${a.crotal},${a.fechanac || ''},${a.especie} ${a.sexo}\n`);
+      DB.pesos.forEach(p => csv += `Peso,${p.crotal},${p.fecha},${p.peso}kg\n`);
       DB.tratamientos.forEach(t => csv += `Tratamiento,${t.crotal},${t.fecha},${t.medicamento}\n`);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
